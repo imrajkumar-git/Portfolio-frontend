@@ -1,0 +1,461 @@
+@import "bootstrap/dist/css/bootstrap.min.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-dark: #050807;
+  --bg-light: #f3fbf7;
+}
+
+html {
+  font-size: 15px;
+}
+
+html.dark body {
+  background-color: var(--bg-dark);
+  color: #eafff4;
+}
+
+html.light body {
+  background-color: var(--bg-light);
+  color: #06251a;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #1fc879 transparent;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #1fc879, #2fb2f4);
+  border-radius: 999px;
+}
+
+::selection {
+  background: #1fc879;
+  color: #04140c;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Space Grotesk", sans-serif;
+}
+
+.container, .row, .col, [class^="col-"] {
+  /* neutralise Bootstrap's max-width containers so Tailwind layout controls page width */
+  max-width: none;
+}
+
+.glass-card {
+  background: linear-gradient(160deg, rgba(31, 200, 121, 0.08), rgba(47, 178, 244, 0.06));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px);
+}
+
+html.light .glass-card {
+  background: linear-gradient(160deg, rgba(31, 200, 121, 0.08), rgba(47, 178, 244, 0.08));
+  border: 1px solid rgba(6, 37, 26, 0.08);
+}
+
+/* ==================================================================
+   THEME SYSTEM — dark is the default look; everything below only
+   fires in html.light and re-maps the exact Tailwind utility classes
+   used across the app, so every page adapts without markup changes.
+   Selectors are exact (not wildcards) on purpose: several of these
+   utilities are also used as hover:/group-hover: variants elsewhere
+   (e.g. hover:bg-white/5), and a substring match would wrongly turn
+   a hover-only style into an always-on one.
+   `.scrim` marks the few elements that sit on top of an arbitrary
+   photo (a blog cover image, a hero portrait) and must stay dark
+   regardless of theme so their text stays legible over any photo.
+================================================================== */
+
+/* ---- text: neutral tones — all pushed into a genuinely dark range
+   (not medium gray) so copy reads as "dark text" at every tier, with
+   just enough spread left to keep headings vs. meta text distinct. ---- */
+html.light .text-white:not(.scrim),
+html.light .text-slate-100:not(.scrim),
+html.light .text-slate-200:not(.scrim) { color: #071a12; }
+html.light .text-slate-300:not(.scrim) { color: #163829; }
+html.light .text-slate-400:not(.scrim) { color: #2c4d3f; }
+html.light .text-slate-500:not(.scrim) { color: #3f6152; }
+html.light .hover\:text-white:hover:not(.scrim) { color: #071a12; }
+html.light .hover\:text-slate-200:hover:not(.scrim) { color: #071a12; }
+
+/* ---- text: accent tones — same hue, darkened further so nothing
+   reads as pale on the light background. ---- */
+html.light .text-emerald-300:not(.scrim) { color: #0b7346; }
+html.light .text-emerald-400:not(.scrim) { color: #0a7d4c; }
+html.light .text-sky-300:not(.scrim) { color: #0f6ba3; }
+html.light .text-sky-400:not(.scrim) { color: #0c5c8c; }
+html.light .text-red-300:not(.scrim) { color: #a01f33; }
+html.light .text-red-400:not(.scrim) { color: #931a2c; }
+html.light .text-yellow-300:not(.scrim) { color: #7d5608; }
+html.light .text-yellow-400:not(.scrim) { color: #714c08; }
+html.light .hover\:text-emerald-300:hover:not(.scrim),
+html.light .group:hover .group-hover\:text-emerald-300:not(.scrim) { color: #0b7346; }
+html.light .hover\:text-emerald-400:hover:not(.scrim) { color: #0a7d4c; }
+html.light .hover\:text-sky-400:hover:not(.scrim),
+html.light .group:hover .group-hover\:text-sky-300:not(.scrim) { color: #0f6ba3; }
+html.light .hover\:text-red-300:hover:not(.scrim) { color: #a01f33; }
+
+/* Every <input>/<textarea> placeholder, whatever utility class set it,
+   gets one legible dark-but-muted tone in light mode — a little
+   lighter than typed text on purpose, so a hint still reads as a
+   hint and not as content already entered. */
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: #4c6c5d;
+}
+
+/* The one hero headline word that uses a gradient fill instead of a
+   flat color — darkened the same way as the rest of the accent text
+   so it doesn't read as pale against the light background. */
+html.light .text-gradient {
+  background: linear-gradient(90deg, #0a7d4c, #0c5c8c);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* ---- borders ---- */
+html.light .border-white,
+html.light .border-white\/5,
+html.light .border-white\/10,
+html.light .border-white\/15,
+html.light .border-white\/20 {
+  border-color: rgba(6, 37, 26, 0.14);
+}
+html.light .hover\:border-white\/25:hover {
+  border-color: rgba(6, 37, 26, 0.28);
+}
+
+/* ---- surfaces: translucent glass panels (nav, footer, dropdowns,
+   table headers, hover rows, modals, form inputs, the theme toggle
+   track) flip from a dark glass to a light one. `.scrim` badges that
+   sit on a photo are excluded so they stay dark-on-photo. ---- */
+html.light .bg-black:not(.scrim),
+html.light .bg-black\/20:not(.scrim),
+html.light .bg-black\/30:not(.scrim),
+html.light .bg-black\/40:not(.scrim),
+html.light .bg-black\/50:not(.scrim),
+html.light .bg-black\/60:not(.scrim),
+html.light .bg-black\/80:not(.scrim),
+html.light .bg-black\/90:not(.scrim) {
+  background-color: rgba(255, 255, 255, 0.65);
+}
+html.light .bg-white,
+html.light .bg-white\/5,
+html.light .bg-white\/10,
+html.light .bg-white\/\[0\.03\] {
+  background-color: rgba(6, 37, 26, 0.05);
+}
+html.light .hover\:bg-white\/5:hover {
+  background-color: rgba(6, 37, 26, 0.07);
+}
+
+.text-gradient {
+  background: linear-gradient(90deg, #3ddc91, #5cc9ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.btn-glow {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-glow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  transform: translateX(-120%);
+  transition: transform 0.6s ease;
+}
+
+.btn-glow:hover::after {
+  transform: translateX(120%);
+}
+
+/* Fine grain over the WebGL background — stops the aurora gradients from
+   banding on wide dark areas. Inlined so it needs no network request. */
+.bg-noise {
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* The skills globe is focusable so it can be turned with the arrow keys. */
+/* ==================================================================
+   GLASS NAVBAR — deliberately inverted against the page theme: a
+   milky, opaque-frosted WHITE glass bar on the dark theme, and a
+   milky, opaque-frosted BLACK glass bar on the light theme — with
+   text flipped to match (near-black on the milky-white bar,
+   near-white on the milky-black bar). Scoped entirely through CSS
+   variables so it never touches (and is never touched by) the
+   site-wide html.light text/bg override block above.
+================================================================== */
+.site-navbar {
+  --nav-bg: rgba(255, 255, 255, 0.82);
+  --nav-bg-scrolled: rgba(255, 255, 255, 0.92);
+  --nav-border: rgba(255, 255, 255, 0.6);
+  --nav-shadow: 0 8px 42px -12px rgba(255, 255, 255, 0.35);
+  --nav-text: #0a0f0c;
+  --nav-text-strong: #000000;
+  --nav-text-muted: #3f4b46;
+  --nav-accent: #0a7d4c;
+  --nav-accent-2: #0c5c8c;
+  --nav-pill-bg: rgba(0, 0, 0, 0.06);
+  --nav-pill-border: rgba(0, 0, 0, 0.14);
+  --nav-surface: rgba(255, 255, 255, 0.96);
+  --nav-surface-border: rgba(0, 0, 0, 0.12);
+
+  background-color: var(--nav-bg);
+  border-bottom: 1px solid var(--nav-border);
+  backdrop-filter: blur(22px) saturate(180%);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  transition: background-color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.site-navbar.is-scrolled {
+  background-color: var(--nav-bg-scrolled);
+  box-shadow: var(--nav-shadow);
+}
+
+html.light .site-navbar {
+  --nav-bg: rgba(6, 8, 7, 0.82);
+  --nav-bg-scrolled: rgba(6, 8, 7, 0.92);
+  --nav-border: rgba(255, 255, 255, 0.16);
+  --nav-shadow: 0 8px 42px -12px rgba(0, 0, 0, 0.75);
+  --nav-text: #f7fdfa;
+  --nav-text-strong: #ffffff;
+  --nav-text-muted: #b7cfc4;
+  --nav-accent: #3ddc91;
+  --nav-accent-2: #5cc9ff;
+  --nav-pill-bg: rgba(255, 255, 255, 0.1);
+  --nav-pill-border: rgba(255, 255, 255, 0.2);
+  --nav-surface: rgba(6, 8, 7, 0.97);
+  --nav-surface-border: rgba(255, 255, 255, 0.14);
+}
+
+.site-navbar,
+.site-navbar * {
+  color: var(--nav-text);
+}
+
+.site-navbar .nav-logo-badge {
+  background: linear-gradient(140deg, rgba(61, 220, 145, 0.32), rgba(92, 201, 255, 0.32));
+  border: 1px solid var(--nav-pill-border);
+  transition: transform 0.35s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.site-navbar a:hover .nav-logo-badge {
+  transform: scale(1.08) rotate(-3deg);
+  border-color: var(--nav-accent-2);
+  box-shadow: 0 0 20px -4px var(--nav-accent-2);
+}
+
+/* Wordmark: a tight, condensed display treatment that reads as a
+   logotype rather than body copy — distinct casing/weight/spacing
+   from the nav links below it. */
+.site-navbar .nav-logo-text {
+  display: flex;
+  align-items: baseline;
+  gap: 0.05em;
+  font-size: clamp(1.15rem, 1.6vw + 0.6rem, 1.4rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--nav-text-strong) !important;
+  white-space: nowrap;
+}
+.site-navbar .nav-logo-text .nav-wordmark-dot {
+  font-weight: 700;
+  color: var(--nav-accent) !important;
+}
+.site-navbar .nav-logo-text .nav-wordmark-tld {
+  font-family: var(--font-body, inherit);
+  font-size: 0.55em;
+  font-weight: 600;
+  font-style: italic;
+  letter-spacing: 0.02em;
+  color: var(--nav-accent-2) !important;
+  align-self: flex-end;
+  padding-bottom: 0.05em;
+}
+
+.site-navbar .nav-pill {
+  background-color: var(--nav-pill-bg);
+  border: 1px solid var(--nav-pill-border);
+}
+
+/* Nav links: small-caps-style uppercase treatment, clearly a
+   different font "format" from both the logo wordmark and the
+   body copy — sized to sit close to normal text, never larger. */
+.site-navbar .nav-link {
+  color: var(--nav-text) !important;
+  font-size: clamp(0.78rem, 0.55vw + 0.68rem, 0.875rem);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: color 0.25s ease, transform 0.2s ease;
+}
+.site-navbar .nav-link:hover {
+  color: var(--nav-accent) !important;
+  transform: translateY(-1px);
+}
+.site-navbar .nav-link.is-active {
+  color: #04140c !important;
+}
+.site-navbar .nav-link.is-active:hover { transform: none; }
+
+/* ==================================================================
+   NOVA GLOW — sliding highlight pill + cursor-tracking spotlight
+   inside the desktop nav pill. Pure CSS/JS, no extra dependencies:
+   Navbar.jsx measures link positions and drives these via inline
+   transforms/opacity; the classes below just define the look.
+================================================================== */
+.nova-glow-pill {
+  isolation: isolate;
+}
+.nova-glow-spotlight {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200px;
+  height: 200px;
+  margin-left: -100px;
+  margin-top: -100px;
+  border-radius: 9999px;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(circle, rgba(61, 220, 145, 0.28), rgba(92, 201, 255, 0.14) 45%, transparent 72%);
+  filter: blur(2px);
+  transition: opacity 0.3s ease;
+  will-change: transform;
+}
+html.light .nova-glow-spotlight {
+  background: radial-gradient(circle, rgba(92, 201, 255, 0.3), rgba(61, 220, 145, 0.16) 45%, transparent 72%);
+}
+.nova-glow-indicator {
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  border-radius: 9999px;
+  pointer-events: none;
+  z-index: 0;
+  background: linear-gradient(90deg, var(--nav-accent), var(--nav-accent-2));
+  box-shadow: 0 0 26px -6px var(--nav-accent-2), 0 0 14px -4px var(--nav-accent);
+  transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1), width 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.25s ease;
+  will-change: transform, width;
+}
+.nova-glow-link {
+  position: relative;
+  z-index: 1;
+  transition: color 0.3s ease, transform 0.2s ease;
+}
+.nova-glow-link.is-active,
+.site-navbar .nova-glow-link:hover {
+  color: #04140c !important;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nova-glow-indicator,
+  .nova-glow-spotlight {
+    transition: none !important;
+  }
+}
+
+.site-navbar .nav-icon-btn {
+  background-color: var(--nav-pill-bg);
+  border: 1px solid var(--nav-pill-border);
+  cursor: pointer;
+  transition: border-color 0.25s ease, transform 0.2s ease, background-color 0.25s ease;
+}
+.site-navbar .nav-icon-btn:hover {
+  border-color: var(--nav-accent);
+  transform: translateY(-1px) scale(1.03);
+  background-color: var(--nav-pill-bg);
+}
+
+.site-navbar .nav-user-name {
+  color: var(--nav-text) !important;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.site-navbar .nav-dropdown {
+  background-color: var(--nav-surface);
+  border: 1px solid var(--nav-surface-border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+.site-navbar .nav-dropdown * { color: var(--nav-text) !important; }
+.site-navbar .nav-dropdown .nav-dropdown-email {
+  color: var(--nav-text-muted) !important;
+  border-bottom: 1px solid var(--nav-pill-border);
+}
+.site-navbar .nav-dropdown a,
+.site-navbar .nav-dropdown button {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.site-navbar .nav-dropdown a:hover,
+.site-navbar .nav-dropdown button:hover {
+  background-color: var(--nav-pill-bg);
+}
+.site-navbar .nav-dropdown .nav-logout {
+  color: #e35577 !important;
+}
+
+.site-navbar .nav-mobile-panel {
+  background-color: var(--nav-bg-scrolled);
+  border-top: 1px solid var(--nav-border);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+}
+.site-navbar .nav-mobile-link {
+  color: var(--nav-text) !important;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+}
+.site-navbar .nav-mobile-link:hover { background-color: var(--nav-pill-bg); }
+.site-navbar .nav-mobile-link.is-active {
+  background: linear-gradient(90deg, var(--nav-accent), var(--nav-accent-2));
+  color: #04140c !important;
+}
+
+.skill-sphere:focus-visible {
+  outline: 2px solid rgba(61, 220, 145, 0.7);
+  outline-offset: 12px;
+  border-radius: 9999px;
+}
+
+html.light .skill-sphere button {
+  background-color: rgba(255, 255, 255, 0.8);
+  border-color: rgba(6, 37, 26, 0.12);
+  color: #06251a;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
