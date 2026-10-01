@@ -21,7 +21,7 @@ function PostCard({ post }) {
       className="glass-card group flex flex-col overflow-hidden rounded-2xl transition hover:-translate-y-1 hover:shadow-glow"
     >
       <div className="relative h-40 overflow-hidden bg-gradient-to-br from-emerald-500/40 to-sky-500/40">
-        {post.cover ? (
+        {/* {post.cover ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={post.cover}
@@ -32,7 +32,7 @@ function PostCard({ post }) {
           <div className="flex h-full w-full items-center justify-center font-display text-3xl font-bold text-white/80">
             {post.title.slice(0, 1).toUpperCase()}
           </div>
-        )}
+        )} */}
         {!post.is_published && (
           <span className="absolute left-3 top-3 rounded-full bg-yellow-400 px-2 py-0.5 text-xs font-semibold text-yellow-900">
             Draft

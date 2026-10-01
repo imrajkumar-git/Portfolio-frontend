@@ -1,7 +1,7 @@
 "use client";
 
 const AUTH_MEDIA_ROOT = (
-  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/auth"
+  process.env.NEXT_PUBLIC_API_URL || "https://backend-blogs-sspm.onrender.com/api/auth"
 ).replace(/\/api\/auth\/?$/, "");
 
 export default function Avatar({ user, size = 32 }) {
