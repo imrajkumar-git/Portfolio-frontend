@@ -103,8 +103,14 @@ export default function Navbar() {
     >
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 md:px-8">
         <Link href="/" className="group flex shrink-0 items-center gap-2.5">
-              <Image src="/logo.png" alt="RK logo" width={86} height={36} />
-      
+          <Image
+            src="/logo.png"
+            alt="RK logo"
+            width={112}
+            height={108}
+            priority
+            className="nav-logo-img h-9 w-auto md:h-12 lg:h-14"
+          />
           <span className="nav-logo-text font-display">
             <span>rajkumar</span>
             <span className="nav-wordmark-dot">.</span>

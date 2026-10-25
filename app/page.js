@@ -4,6 +4,9 @@ import { experience } from "@/data/experience";
 import { orbit } from "@/data/skills";
 import { projects } from "@/data/projects";
 import LatestPosts from "@/components/LatestPosts";
+import HomeTerminal from "@/components/HomeTerminal";
+import HeroFlip from "@/components/HeroFlip";
+import CountUp from "@/components/CountUp";
 
 export default function HomePage() {
   const topExperience = experience.slice(0, 3);
@@ -48,47 +51,41 @@ export default function HomePage() {
 
             <div className="mt-12 grid max-w-md grid-cols-3 gap-4 text-center md:text-left">
               <div>
-                <p className="font-display text-3xl font-bold text-emerald-400">5+</p>
+                <p className="font-display text-3xl font-bold text-emerald-400"><CountUp end={5} suffix="+" /></p>
                 <p className="text-xs text-slate-400">Roles Held</p>
               </div>
               <div>
-                <p className="font-display text-3xl font-bold text-sky-400">4</p>
+                <p className="font-display text-3xl font-bold text-sky-400"><CountUp end={4} /></p>
                 <p className="text-xs text-slate-400">Languages Spoken</p>
               </div>
               <div>
-                <p className="font-display text-3xl font-bold text-emerald-400">100%</p>
+                <p className="font-display text-3xl font-bold text-emerald-400"><CountUp end={100} suffix="%" /></p>
                 <p className="text-xs text-slate-400">Data Accuracy</p>
               </div>
             </div>
           </div>
 
-          <div className="relative flex-1">
-            <div className="relative mx-auto h-72 w-72 sm:h-80 sm:w-80 md:h-96 md:w-96">
-              <div className="absolute inset-0 animate-floaty rounded-[2.5rem] bg-gradient-to-br from-emerald-500/30 to-sky-500/30 blur-2xl" />
-              <div className="glass-card relative h-full w-full overflow-hidden rounded-[2.5rem] p-2 shadow-glow">
-                <Image
-                  src="/hero-portrait.jpg"
-                  alt="Rajkumar Aryal"
-                  fill
-                  priority
-                  sizes="(max-width: 768px) 288px, 384px"
-                  className="rounded-[2rem] object-cover"
-                />
-              </div>
-              <span className="absolute -top-4 -left-4 rounded-2xl border border-emerald-400/30 bg-black/60 px-0 py-2 text-sm text-emerald-300 backdrop-blur">
-                📍
-              </span>
-               <span className="absolute -bottom-4 -left-4 rounded-2xl border border-emerald-400/30 bg-black/60 px-0 py-2 text-sm text-emerald-300 backdrop-blur">
-                📍
-              </span> <span className="absolute -bottom-4 -right-4 rounded-2xl border border-emerald-400/30 bg-black/60 px-0 py-2 text-sm text-emerald-300 backdrop-blur">
-                📍
-              </span>
-              <span className="absolute -top-4 -right-4 rounded-2xl border border-emerald-400/30 bg-black/60 px-0 py-2 text-sm text-emerald-300 backdrop-blur">
-                📍
-              </span>
+          <div className="relative w-full flex-1">
+            <div className="relative mx-auto w-full max-w-[18rem] sm:max-w-sm lg:max-w-md">
+              <div className="absolute inset-0 -z-10 animate-floaty rounded-[2rem] bg-gradient-to-br from-emerald-500/30 to-sky-500/30 blur-2xl" />
+              <HeroFlip />
             </div>
           </div>
         </div>
+      </section>
+
+      {/* TERMINAL */}
+      <section className="mx-auto max-w-6xl px-6 pb-20">
+        <div className="mb-8 text-center">
+          <h2 className="font-display text-2xl font-bold">
+            Explore my portfolio from the terminal
+          </h2>
+          <p className="mx-auto mt-2 max-w-xl text-slate-400">
+            Type a command to learn about me. Try <b>about</b>, <b>skills</b> or{" "}
+            <b>projects</b>, or type <b>help</b> to see everything it can do.
+          </p>
+        </div>
+        <HomeTerminal />
       </section>
 
       {/* SKILLS STRIP */}

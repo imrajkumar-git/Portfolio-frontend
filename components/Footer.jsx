@@ -7,7 +7,7 @@ export default function Footer() {
       <div className="mx-auto grid max-w-6xl gap-10 px-6 py-14 md:grid-cols-4">
         <div>
           <div className="flex items-center gap-3">
-            <Image src="/logo.png" alt="RK logo" width={86} height={36} />
+            <Image src="/logo.png" alt="RK logo" width={112} height={108} className="h-10 w-auto" />
             <span className="font-display text-lg font-semibold text-white">
               Rajkumar Aryal
             </span>
