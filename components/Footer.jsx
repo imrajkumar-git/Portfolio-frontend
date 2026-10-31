@@ -4,7 +4,7 @@ import Image from "next/image";
 export default function Footer() {
   return (
     <footer className="relative mt-24 border-t border-white/10 bg-black/40">
-      <div className="mx-auto grid max-w-6xl gap-10 px-6 py-14 md:grid-cols-4">
+      <div className="mx-auto grid max-w-6xl gap-10 px-6 py-12 sm:grid-cols-2 sm:py-14 md:grid-cols-4">
         <div>
           <div className="flex items-center gap-3">
             <Image src="/logo.png" alt="RK logo" width={112} height={108} className="h-10 w-auto" />
@@ -36,7 +36,7 @@ export default function Footer() {
           </h4>
           <ul className="mt-4 space-y-2 text-sm text-slate-300">
             <li>
-              <a href="mailto:rajkumararyal0977@gmail.com" className="hover:text-emerald-400">
+              <a href="mailto:rajkumararyal0977@gmail.com" className="break-all hover:text-emerald-400">
                 📧 rajkumararyal0977@gmail.com
               </a>
             </li>

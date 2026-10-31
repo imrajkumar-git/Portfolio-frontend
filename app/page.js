@@ -217,7 +217,7 @@ export default function HomePage() {
 
       {/* CTA */}
       <section className="mx-auto mb-24 max-w-6xl px-6">
-        <div className="glass-card flex flex-col items-center gap-6 rounded-3xl p-10 text-center shadow-glow md:flex-row md:justify-between md:text-left">
+        <div className="glass-card flex flex-col items-center gap-6 rounded-3xl p-6 text-center sm:p-10 shadow-glow md:flex-row md:justify-between md:text-left">
           <div>
             <h2 className="font-display text-xl font-bold  md:text-2xl">
               Got a project in mind? Let&apos;s build it. 🛠️

@@ -85,7 +85,7 @@ export default function HeroFlip() {
                 <video
                   ref={videoRef}
                   className="h-full w-full object-cover"
-                  poster="/hoverimage.jpg"
+                  poster="/hero-portrait.jpg"
                   muted
                   loop
                   playsInline

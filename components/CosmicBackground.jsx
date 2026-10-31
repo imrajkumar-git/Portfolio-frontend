@@ -91,6 +91,13 @@ export default function CosmicBackground() {
   const mountRef = useRef(null);
   const { theme } = useTheme();
   const isLight = theme === "light";
+  const lightRef = useRef(isLight);
+
+  // The scene is built once; the render loop reads the theme from this ref,
+  // so toggling light/dark recolours it live instead of leaving it unchanged.
+  useEffect(() => {
+    lightRef.current = isLight;
+  }, [isLight]);
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -125,8 +132,8 @@ export default function CosmicBackground() {
       uTime: { value: 0 },
       uIntensity: { value: 0.0 }, // eased in over the first frames
       uAspect: { value: mount.clientWidth / mount.clientHeight },
-      uEmerald: { value: emerald },
-      uSky: { value: sky },
+      uEmerald: { value: emerald.clone() },
+      uSky: { value: sky.clone() },
     };
 
     const auroraMat = new THREE.ShaderMaterial({
@@ -209,11 +216,43 @@ export default function CosmicBackground() {
     let running = true;
     const clock = new THREE.Clock();
 
+    let appliedLight = null;
+    const root = document.documentElement;
+
+    const applyTheme = (light) => {
+      appliedLight = light;
+      // Additive blending is invisible on a light backdrop, so light mode uses
+      // normal blending with deeper colours.
+      const blend = light ? THREE.NormalBlending : THREE.AdditiveBlending;
+      auroraMat.blending = blend;
+      auroraMat.needsUpdate = true;
+      auroraUniforms.uEmerald.value.set(light ? "#0f9f63" : "#1fc879");
+      auroraUniforms.uSky.value.set(light ? "#1a86c4" : "#2fb2f4");
+      starLayers.forEach(({ mat, spec }) => {
+        mat.blending = blend;
+        mat.color.set(light ? "#0a5c3d" : "#ffffff");
+        mat.opacity = light ? spec.opacity * 0.7 : spec.opacity;
+        mat.needsUpdate = true;
+      });
+      grid.material.blending = blend;
+      grid.material.opacity = light ? 0.16 : 0.05;
+      grid.material.needsUpdate = true;
+    };
+
     const render = () => {
+      // /skills draws its own background; don't burn frames underneath it.
+      if (root.classList.contains("skills-active")) {
+        if (running) raf = requestAnimationFrame(render);
+        return;
+      }
+
+      const light = lightRef.current;
+      if (light !== appliedLight) applyTheme(light);
+
       const t = clock.getElapsedTime();
 
       // Fade the aurora in once, rather than popping on at full strength.
-      const target = reduced ? 0.4 : 0.62;
+      const target = light ? (reduced ? 0.3 : 0.5) : reduced ? 0.4 : 0.62;
       auroraUniforms.uIntensity.value +=
         (target - auroraUniforms.uIntensity.value) * 0.02;
       if (!reduced) auroraUniforms.uTime.value = t;
@@ -288,7 +327,7 @@ export default function CosmicBackground() {
 
   return (
     <div
-      className={`fixed inset-0 -z-10 transition-colors duration-700 ${
+      className={`cosmic-bg bg-enter fixed inset-0 -z-10 transition-colors duration-700 ${
         isLight
           ? "bg-[radial-gradient(120%_90%_at_50%_0%,#f2fbf7_0%,#e6f4fb_45%,#eef9f4_100%)]"
           : "bg-[radial-gradient(120%_90%_at_50%_0%,#08211c_0%,#05100e_48%,#030706_100%)]"
@@ -298,7 +337,7 @@ export default function CosmicBackground() {
       <div
         ref={mountRef}
         className="absolute inset-0"
-        style={{ opacity: isLight ? 0.45 : 1 }}
+        style={{ opacity: 1 }}
       />
       {/* Soft falloff keeps body text legible over the brightest bands. */}
       <div

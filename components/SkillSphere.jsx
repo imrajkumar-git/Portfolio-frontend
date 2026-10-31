@@ -2,19 +2,26 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import TechIcon from "./TechIcon";
+import { useTheme } from "@/context/ThemeContext";
+import { readableColor } from "@/lib/color";
 
 /**
  * A drag-to-rotate sphere of technology badges.
  *
  * Points are spread with a Fibonacci spiral so they stay evenly spaced, then
  * projected to 2D every frame. Badges are billboarded (they never tilt) and
- * fade with depth, so the ones on the far side read as being behind the globe.
- * Pointer drag adds angular velocity; releasing lets it coast back to a slow
- * idle spin. Respects prefers-reduced-motion by parking the idle spin.
+ * fade/blur with depth, so the far side reads as being behind the globe.
+ *
+ * - Sizes itself from its container: bigger on desktop, edge-to-edge on phones,
+ *   with label size scaling to match.
+ * - touch-action is pan-y, so a vertical swipe still scrolls the page on a
+ *   phone while a horizontal drag spins the globe.
+ * - Colours follow the site theme (white brand marks flip to ink on light).
+ * - Parks the idle spin under prefers-reduced-motion and skips work while the
+ *   globe is off-screen or the tab is hidden.
  */
 
-const RADIUS = 1;
-const IDLE_SPIN = 0.0016;
+const IDLE_SPIN = 0.002;
 
 function fibonacciSphere(count) {
   const points = [];
@@ -29,6 +36,9 @@ function fibonacciSphere(count) {
 }
 
 export default function SkillSphere({ items = [], onSelect }) {
+  const { theme } = useTheme();
+  const isLight = theme === "light";
+
   const wrapRef = useRef(null);
   const badgeRefs = useRef([]);
   const rotation = useRef({ x: -0.25, y: 0 });
@@ -36,21 +46,40 @@ export default function SkillSphere({ items = [], onSelect }) {
   const drag = useRef({ active: false, lastX: 0, lastY: 0, moved: false });
   const frame = useRef(null);
   const reduced = useRef(false);
+  const onScreen = useRef(true);
 
   const [size, setSize] = useState(360);
   const [hovered, setHovered] = useState(null);
 
   const points = useMemo(() => fibonacciSphere(items.length), [items.length]);
 
+  // Radius as a share of the half-width: tighter on phones so labels never clip.
+  const radiusFactor = size < 520 ? 0.68 : 0.75;
+  const fontSize = Math.max(11, Math.min(16, size / 34));
+
   // ---- measure ----
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
-    const measure = () => setSize(el.clientWidth);
+    const measure = () => setSize(el.clientWidth || 360);
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(el);
     return () => ro.disconnect();
+  }, []);
+
+  // ---- only animate while visible ----
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        onScreen.current = entry.isIntersecting;
+      },
+      { rootMargin: "80px" }
+    );
+    io.observe(el);
+    return () => io.disconnect();
   }, []);
 
   useEffect(() => {
@@ -67,20 +96,21 @@ export default function SkillSphere({ items = [], onSelect }) {
 
   // ---- animation loop ----
   useEffect(() => {
-    const radius = (size / 2) * 0.72;
+    const radius = (size / 2) * radiusFactor;
     const perspective = size * 1.6;
 
     const tick = () => {
+      frame.current = requestAnimationFrame(tick);
+      if (!onScreen.current || document.hidden) return;
+
       if (!drag.current.active) {
-        // Friction, easing back toward the gentle idle spin.
         const target = reduced.current ? 0 : IDLE_SPIN;
         velocity.current.x *= 0.94;
-        velocity.current.y = velocity.current.y * 0.94 + target * 0.06;
+        velocity.current.y = velocity.current.y * 0.95 + target * 0.05;
       }
 
       rotation.current.x += velocity.current.x;
       rotation.current.y += velocity.current.y;
-      // Clamp vertical tilt so the sphere never flips upside down.
       rotation.current.x = Math.max(-0.9, Math.min(0.9, rotation.current.x));
 
       const sinX = Math.sin(rotation.current.x);
@@ -99,21 +129,20 @@ export default function SkillSphere({ items = [], onSelect }) {
         const y2 = py * cosX - z1 * sinX;
         const z2 = py * sinX + z1 * cosX;
 
-        const scale = perspective / (perspective + (RADIUS - z2) * radius * 1.8);
+        const scale = (perspective / (perspective + (1 - z2) * radius * 1.8)) * 1.12;
         const depth = (z2 + 1) / 2; // 0 = far side, 1 = nearest
 
-        el.style.transform = `translate3d(${x1 * radius}px, ${y2 * radius}px, 0) scale(${scale.toFixed(3)})`;
-        el.style.opacity = (0.22 + depth * 0.78).toFixed(3);
+        el.style.transform = `translate(-50%, -50%) translate3d(${(x1 * radius).toFixed(1)}px, ${(y2 * radius).toFixed(1)}px, 0) scale(${scale.toFixed(3)})`;
+        el.style.opacity = (0.2 + depth * 0.8).toFixed(3);
         el.style.zIndex = String(Math.round(depth * 100));
-        el.style.filter = depth < 0.45 ? `blur(${((0.45 - depth) * 3).toFixed(2)}px)` : "none";
+        el.style.filter = depth < 0.42 ? `blur(${((0.42 - depth) * 3).toFixed(2)}px)` : "none";
+        el.style.pointerEvents = depth < 0.3 ? "none" : "auto";
       }
-
-      frame.current = requestAnimationFrame(tick);
     };
 
     frame.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame.current);
-  }, [points, size]);
+  }, [points, size, radiusFactor]);
 
   // ---- pointer drag ----
   const onPointerDown = useCallback((e) => {
@@ -131,7 +160,7 @@ export default function SkillSphere({ items = [], onSelect }) {
     drag.current.lastY = e.clientY;
     velocity.current = { x: dy * 0.00035, y: dx * 0.00045 };
     rotation.current.x += dy * 0.004;
-    rotation.current.y += dx * 0.005;
+    rotation.current.y += dx * 0.006;
   }, []);
 
   const endDrag = useCallback(() => {
@@ -149,10 +178,13 @@ export default function SkillSphere({ items = [], onSelect }) {
     e.preventDefault();
   }, []);
 
+  const ringR = radiusFactor * 100;
+
   return (
     <div
       ref={wrapRef}
-      className="skill-sphere relative mx-auto aspect-square w-full max-w-[540px] cursor-grab touch-none select-none active:cursor-grabbing"
+      className="skill-sphere relative mx-auto aspect-square w-full cursor-grab select-none active:cursor-grabbing"
+      style={{ "--sphere-font": `${fontSize}px`, touchAction: "pan-y" }}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={endDrag}
@@ -163,92 +195,100 @@ export default function SkillSphere({ items = [], onSelect }) {
       role="group"
       aria-label="Rotating sphere of technologies. Use the arrow keys to turn it."
     >
-      {/* wireframe globe + core glow */}
+      {/* halo + wireframe + orbiting rings */}
       <svg
         viewBox="0 0 200 200"
-        className="pointer-events-none absolute inset-0 h-full w-full opacity-60"
+        className="sphere-svg pointer-events-none absolute inset-0 h-full w-full overflow-visible"
         aria-hidden="true"
       >
         <defs>
           <radialGradient id="sphereCore" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#3ddc91" stopOpacity="0.30" />
-            <stop offset="55%" stopColor="#2fb2f4" stopOpacity="0.08" />
-            <stop offset="100%" stopColor="#2fb2f4" stopOpacity="0" />
+            <stop offset="0%" stopColor="var(--sphere-core-a)" stopOpacity="0.55" />
+            <stop offset="55%" stopColor="var(--sphere-core-b)" stopOpacity="0.16" />
+            <stop offset="100%" stopColor="var(--sphere-core-b)" stopOpacity="0" />
           </radialGradient>
         </defs>
-        <circle cx="100" cy="100" r="78" fill="url(#sphereCore)" />
-        <circle
-          cx="100"
-          cy="100"
-          r="72"
-          fill="none"
-          stroke="rgba(61,220,145,0.22)"
-          strokeWidth="0.4"
-        />
-        {/* latitude rings */}
-        {[18, 36, 54, 66].map((ry) => (
+
+        <circle className="sphere-breathe" cx="100" cy="100" r={ringR + 16} fill="url(#sphereCore)" />
+        <circle cx="100" cy="100" r={ringR} fill="none" className="sphere-stroke-a" strokeWidth="0.5" />
+
+        {[0.25, 0.5, 0.75, 0.92].map((k) => (
           <ellipse
-            key={`lat-${ry}`}
+            key={`lat-${k}`}
             cx="100"
             cy="100"
-            rx="72"
-            ry={ry}
+            rx={ringR}
+            ry={ringR * k * 0.5}
             fill="none"
-            stroke="rgba(92,201,255,0.14)"
-            strokeWidth="0.35"
+            className="sphere-stroke-b"
+            strokeWidth="0.4"
           />
         ))}
-        {/* longitude rings */}
-        {[0, 30, 60, 90, 120, 150].map((deg) => (
-          <ellipse
-            key={`lon-${deg}`}
-            cx="100"
-            cy="100"
-            rx="26"
-            ry="72"
-            fill="none"
-            stroke="rgba(61,220,145,0.12)"
-            strokeWidth="0.35"
-            transform={`rotate(${deg} 100 100)`}
-          />
-        ))}
+
+        <g className="sphere-spin" style={{ transformOrigin: "100px 100px" }}>
+          {[0, 30, 60, 90, 120, 150].map((deg) => (
+            <ellipse
+              key={`lon-${deg}`}
+              cx="100"
+              cy="100"
+              rx={ringR * 0.36}
+              ry={ringR}
+              fill="none"
+              className="sphere-stroke-a"
+              strokeWidth="0.4"
+              transform={`rotate(${deg} 100 100)`}
+            />
+          ))}
+        </g>
+
+        {/* two orbiting satellites on dashed outer rings */}
+        <g className="sphere-orbit-a" style={{ transformOrigin: "100px 100px" }}>
+          <circle cx="100" cy="100" r={ringR + 11} fill="none" className="sphere-stroke-b" strokeWidth="0.45" strokeDasharray="2 5" />
+          <circle cx={100 + ringR + 11} cy="100" r="2" className="sphere-dot-a" />
+        </g>
+        <g className="sphere-orbit-b" style={{ transformOrigin: "100px 100px" }}>
+          <circle cx="100" cy="100" r={ringR + 21} fill="none" className="sphere-stroke-a" strokeWidth="0.35" strokeDasharray="1 7" />
+          <circle cx={100 - ringR - 21} cy="100" r="1.6" className="sphere-dot-b" />
+        </g>
       </svg>
 
       {/* badges */}
       <div className="absolute left-1/2 top-1/2 h-0 w-0">
-        {items.map((item, i) => (
-          <button
-            key={item.name}
-            ref={(el) => (badgeRefs.current[i] = el)}
-            type="button"
-            onClick={() => {
-              if (drag.current.moved) return; // don't fire after a drag
-              onSelect?.(item);
-            }}
-            onMouseEnter={() => setHovered(item.name)}
-            onMouseLeave={() => setHovered(null)}
-            className={`absolute -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full border px-2.5 py-1.5 text-[11px] font-medium backdrop-blur-sm transition-colors ${
-              hovered === item.name
-                ? "border-emerald-400/70 bg-emerald-400/15 text-white"
-                : "border-white/10 bg-black/45 text-slate-200"
-            }`}
-            style={{ willChange: "transform, opacity" }}
-            tabIndex={-1}
-          >
-            <span className="flex items-center gap-1.5">
-              <TechIcon
-                name={item.icon}
-                className="h-3.5 w-3.5 shrink-0"
-                style={{ color: item.color }}
-              />
-              {item.name}
-            </span>
-          </button>
-        ))}
+        {items.map((item, i) => {
+          const color = readableColor(item.color, isLight);
+          return (
+            <button
+              key={item.name}
+              ref={(el) => (badgeRefs.current[i] = el)}
+              type="button"
+              onClick={() => {
+                if (drag.current.moved) return; // don't fire after a drag
+                onSelect?.(item);
+              }}
+              onMouseEnter={() => setHovered(item.name)}
+              onMouseLeave={() => setHovered(null)}
+              className={`sphere-badge absolute left-0 top-0 whitespace-nowrap ${
+                hovered === item.name ? "is-hot" : ""
+              }`}
+              style={{ willChange: "transform, opacity", "--c": color }}
+              tabIndex={-1}
+            >
+              <span className="flex items-center gap-[0.45em]">
+                <TechIcon
+                  name={item.icon}
+                  className="shrink-0"
+                  style={{ color, width: "1.2em", height: "1.2em" }}
+                />
+                {item.name}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
-      <p className="pointer-events-none absolute bottom-1 left-1/2 -translate-x-1/2 text-xs text-slate-500">
-        Drag to rotate
+      <p className="sphere-hint pointer-events-none absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs">
+        <span className="hidden sm:inline">Drag to rotate · click a badge to explore</span>
+        <span className="sm:hidden">Swipe to spin · tap a badge</span>
       </p>
     </div>
   );

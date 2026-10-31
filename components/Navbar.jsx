@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import ThemeToggle from "./ThemeToggle";
 import Avatar from "./Avatar";
+import AnimationPicker from "./AnimationPicker";
 import { useAuth } from "@/context/AuthContext";
 
 const LINKS = [
@@ -120,7 +121,7 @@ export default function Navbar() {
 
         <ul
           ref={pillRef}
-          className="nav-pill nova-glow-pill relative hidden items-center gap-0.5 rounded-full p-1.5 lg:flex"
+          className="nav-pill nova-glow-pill relative hidden items-center gap-0.5 rounded-full p-1.5 xl:flex"
           onMouseMove={handlePillMouseMove}
           onMouseLeave={handlePillMouseLeave}
         >
@@ -162,8 +163,9 @@ export default function Navbar() {
           })}
         </ul>
 
-        <div className="hidden items-center gap-3 lg:flex">
+        <div className="hidden items-center gap-3 xl:flex">
           <ThemeToggle />
+          <AnimationPicker />
 
           {loading ? (
             <div className="nav-pill h-9 w-9 animate-pulse rounded-full" />
@@ -200,7 +202,7 @@ export default function Navbar() {
         </div>
 
         <button
-          className="nav-icon-btn flex h-10 w-10 items-center justify-center rounded-xl lg:hidden"
+          className="nav-icon-btn flex h-10 w-10 items-center justify-center rounded-xl xl:hidden"
           onClick={() => setOpen((o) => !o)}
           aria-label="Toggle navigation menu"
         >
@@ -209,7 +211,7 @@ export default function Navbar() {
       </nav>
 
       {open && (
-        <div className="nav-mobile-panel px-4 pb-5 pt-2 sm:px-6 lg:hidden">
+        <div className="nav-mobile-panel max-h-[calc(100dvh-4.5rem)] overflow-y-auto px-4 pb-6 pt-2 sm:px-6 xl:hidden">
           <ul className="flex flex-col gap-1">
             {LINKS.map((link) => {
               const active = pathname === link.href;
@@ -227,8 +229,12 @@ export default function Navbar() {
               );
             })}
           </ul>
-          <div className="mt-4 flex items-center justify-between">
+          <div className="mt-4 flex items-center justify-between gap-3">
+            <span className="text-xs font-semibold uppercase tracking-wide">Theme</span>
             <ThemeToggle />
+          </div>
+          <AnimationPicker variant="inline" />
+          <div className="mt-4 flex items-center justify-between">
             {user && (
               <div className="flex items-center gap-4">
                 <Link href="/dashboard" className="nav-mobile-link">

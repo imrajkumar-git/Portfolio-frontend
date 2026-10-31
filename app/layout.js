@@ -1,9 +1,16 @@
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import CosmicBackground from "@/components/CosmicBackground";
+import SiteBackground from "@/components/SiteBackground";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { AnimationProvider } from "@/context/AnimationContext";
 import { AuthProvider } from "@/context/AuthContext";
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
 
 export const metadata = {
   title: "Rajkumar Aryal — Full Stack Developer",
@@ -24,12 +31,14 @@ export default function RootLayout({ children }) {
       </head>
       <body className="font-body">
         <ThemeProvider>
-          <AuthProvider>
-            <CosmicBackground />
-            <Navbar />
-            <main className="min-h-screen">{children}</main>
-            <Footer />
-          </AuthProvider>
+          <AnimationProvider>
+            <AuthProvider>
+              <SiteBackground />
+              <Navbar />
+              <main className="min-h-screen">{children}</main>
+              <Footer />
+            </AuthProvider>
+          </AnimationProvider>
         </ThemeProvider>
       </body>
     </html>

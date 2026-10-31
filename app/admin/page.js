@@ -162,8 +162,8 @@ function UsersTab() {
 
   return (
     <div>
-      <div className="glass-card overflow-hidden rounded-2xl">
-        <table className="w-full text-sm">
+      <div className="glass-card overflow-x-auto rounded-2xl">
+        <table className="w-full min-w-[640px] text-sm">
           <thead className="bg-white/5 text-left text-slate-400">
             <tr>
               <th className="px-4 py-3 font-medium">User</th>
@@ -254,8 +254,8 @@ function PostsTab() {
   };
 
   return (
-    <div className="glass-card overflow-hidden rounded-2xl">
-      <table className="w-full text-sm">
+    <div className="glass-card overflow-x-auto rounded-2xl">
+      <table className="w-full min-w-[640px] text-sm">
         <thead className="bg-white/5 text-left text-slate-400">
           <tr>
             <th className="px-4 py-3 font-medium">Post</th>
@@ -333,8 +333,8 @@ function ReviewsTab() {
   };
 
   return (
-    <div className="glass-card overflow-hidden rounded-2xl">
-      <table className="w-full text-sm">
+    <div className="glass-card overflow-x-auto rounded-2xl">
+      <table className="w-full min-w-[640px] text-sm">
         <thead className="bg-white/5 text-left text-slate-400">
           <tr>
             <th className="px-4 py-3 font-medium">User</th>
@@ -377,7 +377,7 @@ function AdminContent() {
   const [tab, setTab] = useState("users");
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-16">
+    <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
       <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-1.5 text-xs text-emerald-300">
         🛠️ Staff only
       </span>
@@ -386,7 +386,7 @@ function AdminContent() {
         Full access — manage every user, blog post, and review on the site.
       </p>
 
-      <div className="mb-6 flex w-fit gap-1 rounded-xl border border-white/10 bg-white/5 p-1">
+      <div className="mb-6 flex w-fit max-w-full gap-1 overflow-x-auto rounded-xl border border-white/10 bg-white/5 p-1">
         {TABS.map((t) => (
           <button
             key={t.id}
